@@ -14,6 +14,7 @@ from keras.utils.io_utils import HDF5Matrix
 from pprint import pprint
 
 K.set_image_dim_ordering("th")
+
 import cv2
 import h5py
 import json
@@ -36,7 +37,7 @@ class OpticalSpeechRecognizer(object):
         self.osr = None
     def save_osr_model(self):
     """ Save the OSR model to an HDF5 file
-    """
+        """
     # delete save files, if they already exist
 
         try:
@@ -56,21 +57,21 @@ class OpticalSpeechRecognizer(object):
         with open(self.osr_save_fn, "w") as osr_save_file:
             osr_model_json = self.osr.to_json()
             osr_save_file.write(osr_model_json)
-        # save OSR model weights
+            # save OSR model weights
             print "Saving OSR model weights to \"{0}\"".format(self.osr_weights_save_fn)
             self.osr.save_weights(self.osr_weights_save_fn)
             print "Saved OSR model and weights to disk\n"
     def load_osr_model(self):
     """ Load the OSR model from an HDF5 file
     """
-    print "\nLoading OSR model from \"{0}\"".format(self.osr_save_fn)
-    with open(self.osr_save_fn, "r") as osr_save_file:
-        osr_model_json = osr_save_file.read()
-        self.osr = model_from_json(osr_model_json)
-        print "Loading OSR model weights from \"{0}\"".format(self.osr_weights_save_fn)
-    with open(self.osr_weights_save_fn, "r") as osr_weights_save_file:
-        self.osr.load_weights(self.osr_weights_save_fn)
-        print "Loaded OSR model and weights from disk\n"
+        print "\nLoading OSR model from \"{0}\"".format(self.osr_save_fn)
+        with open(self.osr_save_fn, "r") as osr_save_file:
+            osr_model_json = osr_save_file.read()
+            self.osr = model_from_json(osr_model_json)
+            print "Loading OSR model weights from \"{0}\"".format(self.osr_weights_save_fn)
+        with open(self.osr_weights_save_fn, "r") as osr_weights_save_file:
+            self.osr.load_weights(self.osr_weights_save_fn)
+            print "Loaded OSR model and weights from disk\n"
 
     def predict_words(self, sequences):
     """ Predicts the word pronounced in each sequence within the given list of
@@ -82,7 +83,8 @@ class OpticalSpeechRecognizer(object):
             predictions = [training_classes[class_prediction] for class_prediction in
             predictions]
 
-        return predictions
+    return predictions
+
     def train_osr_model(self):
     """ Train the optical speech recognizer
     """
@@ -104,16 +106,18 @@ class OpticalSpeechRecognizer(object):
                 training_save_file=training_save_file,
                 validation_sample_idxs=validation_sample_idxs)
                 pbi = ProgressDisplay()
-        self.osr.fit_generator(generator=training_sequence_generator,
-        validation_data=validation_sequence_generator,
-        samples_per_epoch=len(training_sample_idxs),
-        nb_val_samples=len(validation_sample_idxs),
-        nb_epoch=15,
-        max_q_size=1,
-        verbose=2,
-        callbacks=[pbi],
-        class_weight=None,
-        nb_worker=1)
+            self.osr.fit_generator(generator=training_sequence_generator,
+            validation_data=validation_sequence_generator,
+            samples_per_epoch=len(training_sample_idxs),
+            nb_val_samples=len(validation_sample_idxs),
+            nb_epoch=15,
+            max_q_size=1,
+            verbose=2,
+            callbacks=[pbi],
+            class_weight=None,
+            nb_worker=1)
+
+
     def generate_training_sequences(self, batch_size, training_save_file,training_sample_idxs):
     """ Generates training sequences from HDF5 file on demand
     """
@@ -135,6 +139,7 @@ class OpticalSpeechRecognizer(object):
                     X = training_save_file["X"][batch_idxs]
                     Y = training_save_file["Y"][batch_idxs]
                 yield (np.array(X), np.array(Y))
+
     def generate_validation_sequences(self, batch_size, training_save_file,validation_sample_idxs):
         while True:
             # generate sequences for validation
@@ -154,6 +159,7 @@ class OpticalSpeechRecognizer(object):
                 X = training_save_file["X"][batch_idxs]
                 Y = training_save_file["Y"][batch_idxs]
             yield (np.array(X), np.array(Y))
+
     def print_osr_summary(self):
     """ Prints a summary representation of the OSR model
     """
@@ -163,8 +169,7 @@ class OpticalSpeechRecognizer(object):
     def generate_osr_model(self):
     """ Builds the optical speech recognizer model
     """
-    print "".join(["\nGenerating OSR model\n",
-    "-"*40])
+    print "".join(["\nGenerating OSR model\n","-"*40])
     with h5py.File(self.training_save_fn, "r") as training_save_file:
                     class_count = len(training_save_file.attrs["training_classes"].split(","))
                     video = Input(shape=(self.frames_per_sequence,3,self.rows,self.columns))
@@ -213,8 +218,7 @@ class OpticalSpeechRecognizer(object):
         ".mov" in file_name)]
                 # update sample count
                 sample_count += len(training_class_sequence_paths)
-                sample_count_by_class[class_label] =
-                len(training_class_sequence_paths)
+                sample_count_by_class[class_label] =len(training_class_sequence_paths)
                 print "".join(["\n","Found {0} training samples!\n".format(sample_count),
                 "-"*40])
         for class_label, training_class in enumerate(training_classes):
